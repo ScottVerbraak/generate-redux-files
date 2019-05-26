@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import {InputBoxOptions} from 'vscode';
 import {IDisposable} from './disposable.interface';
 import {FolderExistError} from './errors/Folder-Exists.error';
@@ -49,12 +49,14 @@ export class ReduxGenerator implements IDisposable {
 
     create (absoluteFolderPath: string) {
         const folder: string = path.basename(absoluteFolderPath);
+
         if(fs.existsSync(absoluteFolderPath)) {
             throw new FolderExistError(`'${folder}' already exists`);
         }
+        
+        fs.ensureDirSync(absoluteFolderPath);
 
         try {
-            fs.mkdirSync(absoluteFolderPath);
             this.reduxFiles.forEach((file: string) => {
                 const filename = file === 'index' ? `${file}${this.extension}` : `_${folder}.${file}${this.extension}`;
                 const fullpath = path.join(absoluteFolderPath, filename);
